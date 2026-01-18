@@ -8,37 +8,30 @@ import productRoutes from "./routes/product.js";
 import orderRoutes from "./routes/order.js";
 
 import chatbotRoutes from "./routes/chatbot.js";
-
 import userRoutes from "./routes/users.js";
 import weatherRoutes from "./routes/weather.js";
 import geminiRoutes from "./routes/gemini.js";
 
 dotenv.config();
 
-
-
-
-
 const app = express();
 
-// Middleware
-
-app.use("/api/chatbot", chatbotRoutes);
+/* 🔥🔥🔥 CORS MUST COME FIRST 🔥🔥🔥 */
 app.use(cors({
-  origin: ["http://localhost:5173", "https://your-frontend-url.vercel.app"],
-  credentials: true
+  origin: "*",
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
+/* 🔥 PRE-FLIGHT FIX */
+app.options("*", cors());
 
+/* Middleware */
 app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ limit: "10mb", extended: true }));
 
-
-
-
-
-// Routes
-
+/* Routes */
+app.use("/api/chatbot", chatbotRoutes);
 app.use("/api/weather", weatherRoutes);
 app.use("/api/gemini", geminiRoutes);
 app.use("/api/auth", authRoutes);
@@ -46,19 +39,18 @@ app.use("/api/users", userRoutes);
 app.use("/api/products", productRoutes);
 app.use("/api/orders", orderRoutes);
 
-// Root route
+/* Root route */
 app.get("/", (req, res) => {
   res.send("Farmer Shop Backend is running!");
 });
 
-// Connect to MongoDB Atlas
+/* MongoDB */
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
 .then(() => {
   console.log("Connected to MongoDB Atlas");
-  // Start server
   app.listen(process.env.PORT || 5000, () => {
     console.log(`Server running on port ${process.env.PORT}`);
   });
