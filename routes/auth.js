@@ -95,7 +95,9 @@ router.post("/login", async (req, res) => {
       { expiresIn: "7d" }
     );
 
+    // 🔥🔥 ONLY CHANGE IS HERE
     res.status(200).json({
+      success: true,     // ✅ ADDED
       token,
       user: {
         _id: user._id,

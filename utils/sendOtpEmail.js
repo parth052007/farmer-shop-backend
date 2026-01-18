@@ -1,33 +1,31 @@
-import nodemailer from "nodemailer";
+import axios from "axios";
 
 const sendOtpEmail = async (to, otp) => {
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASS
+    const response = await axios.post(
+      "https://api.brevo.com/v3/smtp/email",
+      {
+        sender: {
+          email: process.env.SENDER_EMAIL,
+          name: "Farmer Shop"
+        },
+        to: [{ email: to }],
+        subject: "Your OTP Code",
+        htmlContent: `<h1>Your OTP is ${otp}</h1>`
       },
-      tls: {
-        rejectUnauthorized: false   // 🔥 THIS FIX
+      {
+        headers: {
+          accept: "application/json",
+          "api-key": process.env.BREVO_API_KEY,
+          "content-type": "application/json"
+        }
       }
-    });
+    );
 
-    await transporter.sendMail({
-      from: `"Farmer Shop" <${process.env.EMAIL_USER}>`,
-      to,
-      subject: "Your OTP Code",
-      html: `
-        <h2>OTP Verification</h2>
-        <h1>${otp}</h1>
-        <p>Valid for 5 minutes</p>
-      `
-    });
-
-    console.log("OTP sent to:", to);
-  } catch (error) {
-    console.error("OTP ERROR:", error);
-    throw error;
+    console.log("✅ OTP sent via Brevo API");
+  } catch (err) {
+    console.error("❌ BREVO API ERROR:", err.response?.data || err.message);
+    throw err;
   }
 };
 
