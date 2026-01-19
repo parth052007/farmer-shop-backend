@@ -18,14 +18,19 @@ router.post("/add", async (req, res) => {
 });
 
 // 📦 GET ALL PRODUCTS
+// 📦 GET APPROVED PRODUCTS (CUSTOMER)
 router.get("/", async (req, res) => {
   try {
-    const products = await Product.find().sort({ createdAt: -1 });
+    const products = await Product.find({ status: "approved" })
+      .sort({ createdAt: -1 });
+
     res.status(200).json(products);
   } catch (err) {
+    console.error("GET PRODUCTS ERROR:", err);
     res.status(500).json({ message: "Server error" });
   }
 });
+
 
 // 🕒 GET PENDING PRODUCTS (ADMIN)
 router.get("/pending", async (req, res) => {
